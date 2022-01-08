@@ -1,6 +1,7 @@
 use crate::dict_filters::DictFilters;
 use crate::utils::read_lines;
 use std::collections::HashMap;
+use std::io::Error;
 
 #[derive(Debug)]
 pub struct Dict {
@@ -10,8 +11,9 @@ pub struct Dict {
 type Freq = HashMap<char, HashMap<usize, usize>>;
 
 impl Dict {
-    pub fn from_file(path: &str) -> Self {
-        let v: Vec<String> = if let Ok(lines) = read_lines(path) {
+    pub fn from_file(path: &str) -> Result<Self, Error> {
+        let lines = read_lines(path)?;
+        Ok(Self::from_vec(
             lines
                 .filter_map(|line| {
                     if let Ok(word) = line {
@@ -19,11 +21,24 @@ impl Dict {
                     }
                     None
                 })
-                .collect()
-        } else {
-            vec![]
-        };
-        Self::from_vec(v)
+                .collect(),
+        ))
+    }
+
+    pub fn from_file_with_len(path: &str, len: usize) -> Result<Self, Error> {
+        let lines = read_lines(path)?;
+        Ok(Self::from_vec(
+            lines
+                .filter_map(|line| {
+                    if let Ok(word) = line {
+                        if word.chars().count() == len {
+                            return Some(word);
+                        }
+                    }
+                    None
+                })
+                .collect(),
+        ))
     }
 
     pub fn from_vec(v: Vec<String>) -> Self {
