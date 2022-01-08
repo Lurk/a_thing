@@ -28,7 +28,21 @@ impl<'a> DictFilters<'a> {
         self
     }
 
-    pub fn contains(mut self, chars: &'a str) -> Self {
+    pub fn contains_str(mut self, s: &'a str) -> Self {
+        if !s.is_empty() {
+            self.inner = Box::new(self.inner.filter(move |word| word.contains(s)));
+        }
+        self
+    }
+
+    pub fn not_contains_str(mut self, s: &'a str) -> Self {
+        if !s.is_empty() {
+            self.inner = Box::new(self.inner.filter(move |word| !word.contains(s)));
+        }
+        self
+    }
+
+    pub fn contains_chars(mut self, chars: &'a str) -> Self {
         if !chars.is_empty() {
             self.inner = Box::new(
                 self.inner
@@ -38,7 +52,7 @@ impl<'a> DictFilters<'a> {
         self
     }
 
-    pub fn not_contains(mut self, chars: &'a str) -> Self {
+    pub fn not_contains_chars(mut self, chars: &'a str) -> Self {
         if !chars.is_empty() {
             self.inner = Box::new(
                 self.inner
@@ -48,7 +62,7 @@ impl<'a> DictFilters<'a> {
         self
     }
 
-    pub fn positional_filter(mut self, chars: &'a [Option<char>]) -> Self {
+    pub fn positional_contains_chars(mut self, chars: &'a [Option<char>]) -> Self {
         self.inner = Box::new(self.inner.filter(|word| {
             for (i, char) in chars.iter().enumerate() {
                 if let Some(lhs) = char {
@@ -66,7 +80,7 @@ impl<'a> DictFilters<'a> {
         self
     }
 
-    pub fn positional_not_filter(mut self, chars: &'a [Option<char>]) -> Self {
+    pub fn positional_not_contains_chars(mut self, chars: &'a [Option<char>]) -> Self {
         self.inner = Box::new(self.inner.filter(|word| {
             for (i, char) in chars.iter().enumerate() {
                 if let Some(lhs) = char {

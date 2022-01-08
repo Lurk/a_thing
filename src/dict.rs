@@ -74,18 +74,26 @@ impl Dict {
         DictFilters::new(Box::new(self.inner.into_iter())).ends_with(s)
     }
 
-    pub fn contains(self, chars: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).contains(chars)
-    }
-    pub fn not_contains(self, chars: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).not_contains(chars)
+    pub fn contains_str(self, s: &str) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).contains_str(s)
     }
 
-    pub fn positional_filter(self, chars: &[Option<char>]) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).positional_filter(chars)
+    pub fn not_contains_str(self, s: &str) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).not_contains_str(s)
     }
 
-    pub fn positional_not_filter(self, chars: &[Option<char>]) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).positional_not_filter(chars)
+    pub fn contains_chars(self, chars: &str) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).contains_chars(chars)
+    }
+    pub fn not_contains_chars(self, chars: &str) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).not_contains_chars(chars)
+    }
+
+    pub fn positional_contains_chars(self, chars: &[Option<char>]) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).positional_contains_chars(chars)
+    }
+
+    pub fn positional_not_contains_chars(self, chars: &[Option<char>]) -> DictFilters<'_> {
+        DictFilters::new(Box::new(self.inner.into_iter())).positional_not_contains_chars(chars)
     }
 }
