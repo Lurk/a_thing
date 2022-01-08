@@ -39,8 +39,7 @@ impl Dict {
         freq
     }
 
-    pub fn most_common(&self, count: usize) -> Self {
-        let freq = self.get_char_freq();
+    pub fn most_common(&self, freq: HashMap<char, usize>, count: usize) -> Self {
         let mut words_with_weight: HashMap<String, usize> = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word.to_string()).or_insert(0);
