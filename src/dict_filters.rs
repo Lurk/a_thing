@@ -88,8 +88,6 @@ impl<'a> DictFilters<'a> {
                         if *lhs == rhs {
                             return false;
                         }
-                    } else {
-                        return false;
                     }
                 }
             }
@@ -100,5 +98,167 @@ impl<'a> DictFilters<'a> {
 
     pub fn apply(self) -> Dict {
         Dict::from_vec(self.inner.collect())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::DictFilters;
+
+    #[test]
+    fn filter_by_length() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .filter_by_length(6)
+        .apply();
+
+        assert!(res.len() == 1);
+        assert!(res.at(0) == "foobar")
+    }
+    #[test]
+    fn starts_with() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "bfoo".to_string(),
+                "foobar".to_string(),
+                "bfoobarbaz".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .starts_with("foo")
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "foobar");
+        assert!(res.at(1) == "foobarbaz");
+    }
+    #[test]
+    fn ends_with() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+                "foobarbazbar".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .ends_with("bar")
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "foobar");
+        assert!(res.at(1) == "foobarbazbar");
+    }
+    #[test]
+    fn contains_str() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .contains_str("bar")
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "foobar");
+        assert!(res.at(1) == "foobarbaz");
+    }
+    #[test]
+    fn not_contains_str() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .not_contains_str("bar")
+        .apply();
+
+        assert!(res.at(0) == "foo");
+        assert!(res.len() == 1);
+    }
+    #[test]
+    fn contains_chars() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .contains_chars("br")
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "foobar");
+        assert!(res.at(1) == "foobarbaz");
+    }
+    #[test]
+    fn not_contains_chars() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .not_contains_chars("bz")
+        .apply();
+
+        assert!(res.len() == 1);
+        assert!(res.at(0) == "foo");
+    }
+    #[test]
+    fn positional_contains_chars() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+                "fobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .positional_contains_chars(&[None, None, Some('o'), None, Some('a')])
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "foobar");
+        assert!(res.at(1) == "foobarbaz");
+    }
+    #[test]
+    fn positional_not_contains_chars() -> () {
+        let res = DictFilters::new(Box::new(
+            [
+                "foo".to_string(),
+                "baz".to_string(),
+                "foobar".to_string(),
+                "foobarbaz".to_string(),
+                "fozbarbaz".to_string(),
+                "fobarbaz".to_string(),
+            ]
+            .into_iter(),
+        ))
+        .positional_not_contains_chars(&[None, None, Some('o'), None, Some('a')])
+        .apply();
+
+        assert!(res.len() == 2);
+        assert!(res.at(0) == "baz");
+        assert!(res.at(1) == "fobarbaz");
     }
 }

@@ -25,7 +25,7 @@ impl Dict {
         ))
     }
 
-    pub fn from_file_with_len(path: &str, len: usize) -> Result<Self, Error> {
+    pub fn from_file_with_word_len(path: &str, len: usize) -> Result<Self, Error> {
         let lines = read_lines(path)?;
         Ok(Self::from_vec(
             lines
@@ -75,6 +75,18 @@ impl Dict {
         v.sort_by(|a, b| b.1.cmp(a.1));
         let n = if v.len() >= count { count } else { v.len() };
         Self::from_vec(v[0..n].iter().map(|(word, _)| word.to_string()).collect())
+    }
+
+    pub fn at(&self, index: usize) -> &String {
+        &self.inner[index]
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.inner.len() == 0
     }
 
     pub fn filter_by_length<'a>(self, len: usize) -> DictFilters<'a> {

@@ -7,7 +7,7 @@ mod tests {
     use crate::dict::Dict;
     #[test]
     fn it_works() -> () {
-        if let Ok(d) = Dict::from_file_with_len("./data/words_alpha.txt", 5) {
+        if let Ok(d) = Dict::from_file_with_word_len("./data/words_alpha.txt", 5) {
             let freq = d.get_char_freq();
             let words = d
                 .contains_chars("")
