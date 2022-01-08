@@ -8,6 +8,12 @@ impl<'a> DictIter<'a> {
     pub fn new(iter: Box<dyn Iterator<Item = String> + 'a>) -> Self {
         Self { inner: iter }
     }
+
+    pub fn filter_by_length(mut self, len: usize) -> Self {
+        self.inner = Box::new(self.inner.filter(move |word| word.chars().count() == len));
+        self
+    }
+
     pub fn starts_with(mut self, s: &'a str) -> Self {
         if s.len() > 0 {
             self.inner = Box::new(self.inner.filter(move |word| word.starts_with(s)));

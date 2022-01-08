@@ -12,10 +12,10 @@ mod tests {
             .filter_by_length(5)
             .starts_with("")
             .ends_with("")
-            .contains("ar")
-            .not_contains("esioty")
+            .contains("")
+            .not_contains("")
             .apply()
-            .most_common(100);
+            .most_common(10);
 
         println!("{:#?}", words)
     }
