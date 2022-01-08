@@ -1,10 +1,10 @@
 use crate::dict::Dict;
 
-pub struct DictIter<'a> {
+pub struct DictFilters<'a> {
     inner: Box<dyn Iterator<Item = String> + 'a>,
 }
 
-impl<'a> DictIter<'a> {
+impl<'a> DictFilters<'a> {
     pub fn new(iter: Box<dyn Iterator<Item = String> + 'a>) -> Self {
         Self { inner: iter }
     }

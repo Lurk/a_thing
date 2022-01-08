@@ -1,5 +1,5 @@
 pub mod dict;
-pub mod dict_iter;
+pub mod dict_filters;
 mod utils;
 
 #[cfg(test)]

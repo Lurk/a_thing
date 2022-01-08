@@ -1,4 +1,4 @@
-use crate::dict_iter::DictIter;
+use crate::dict_filters::DictFilters;
 use crate::utils::read_lines;
 use std::collections::HashMap;
 
@@ -63,22 +63,22 @@ impl Dict {
         )
     }
 
-    pub fn filter_by_length<'a>(self, len: usize) -> DictIter<'a> {
-        DictIter::new(Box::new(self.iner.into_iter())).filter_by_length(len)
+    pub fn filter_by_length<'a>(self, len: usize) -> DictFilters<'a> {
+        DictFilters::new(Box::new(self.iner.into_iter())).filter_by_length(len)
     }
 
-    pub fn starts_with<'a>(self, s: &'a str) -> DictIter<'a> {
-        DictIter::new(Box::new(self.iner.into_iter())).starts_with(s)
+    pub fn starts_with<'a>(self, s: &'a str) -> DictFilters<'a> {
+        DictFilters::new(Box::new(self.iner.into_iter())).starts_with(s)
     }
 
-    pub fn ends_with<'a>(self, s: &'a str) -> DictIter<'a> {
-        DictIter::new(Box::new(self.iner.into_iter())).ends_with(s)
+    pub fn ends_with<'a>(self, s: &'a str) -> DictFilters<'a> {
+        DictFilters::new(Box::new(self.iner.into_iter())).ends_with(s)
     }
 
-    pub fn contains<'a>(self, chars: &'a str) -> DictIter<'a> {
-        DictIter::new(Box::new(self.iner.into_iter())).contains(chars)
+    pub fn contains<'a>(self, chars: &'a str) -> DictFilters<'a> {
+        DictFilters::new(Box::new(self.iner.into_iter())).contains(chars)
     }
-    pub fn not_contains<'a>(self, chars: &'a str) -> DictIter<'a> {
-        DictIter::new(Box::new(self.iner.into_iter())).not_contains(chars)
+    pub fn not_contains<'a>(self, chars: &'a str) -> DictFilters<'a> {
+        DictFilters::new(Box::new(self.iner.into_iter())).not_contains(chars)
     }
 }
