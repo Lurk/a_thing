@@ -11,12 +11,12 @@ mod tests {
         let words = d.filter_by_length(5).apply();
         let freq = words.get_char_freq();
         let words = words
-            .starts_with("")
-            .ends_with("")
             .contains("")
             .not_contains("")
+            .positional_filter(&vec![None, None, None, None, None])
+            .positional_not_filter(&vec![None, None, None, None, None])
             .apply()
-            .most_common(freq, 10);
+            .most_common(&freq, 10);
 
         println!("{:#?}", words)
     }

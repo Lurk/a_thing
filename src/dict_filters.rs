@@ -48,6 +48,42 @@ impl<'a> DictFilters<'a> {
         self
     }
 
+    pub fn positional_filter(mut self, chars: &'a [Option<char>]) -> Self {
+        self.inner = Box::new(self.inner.filter(|word| {
+            for (i, char) in chars.iter().enumerate() {
+                if let Some(lhs) = char {
+                    if let Some(rhs) = word.chars().nth(i) {
+                        if *lhs != rhs {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            true
+        }));
+        self
+    }
+
+    pub fn positional_not_filter(mut self, chars: &'a [Option<char>]) -> Self {
+        self.inner = Box::new(self.inner.filter(|word| {
+            for (i, char) in chars.iter().enumerate() {
+                if let Some(lhs) = char {
+                    if let Some(rhs) = word.chars().nth(i) {
+                        if *lhs == rhs {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            true
+        }));
+        self
+    }
+
     pub fn apply(self) -> Dict {
         Dict::from_vec(self.inner.collect())
     }
