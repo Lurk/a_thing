@@ -89,6 +89,10 @@ impl Dict {
         self.inner.len() == 0
     }
 
+    pub fn to_vec(self) -> Vec<String> {
+        self.inner
+    }
+
     pub fn filter_by_length<'a>(self, len: usize) -> DictFilters<'a> {
         DictFilters::new(Box::new(self.inner.into_iter())).filter_by_length(len)
     }
