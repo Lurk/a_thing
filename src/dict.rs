@@ -67,10 +67,10 @@ impl Dict {
     }
 
     fn most_common_by_char(&self, freq: &CharFreq) -> HashMap<&String, usize> {
-        let mut words_with_weight: HashMap<&String, usize> = HashMap::new();
+        let mut words_with_weight = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word).or_insert(0);
-            let mut chars: Vec<char> = vec![];
+            let mut chars: Vec<char> = Vec::with_capacity(word.chars().count());
             for char in word.chars() {
                 if !chars.contains(&char) {
                     if let Some(char_freq) = freq.get(&char) {
@@ -85,17 +85,17 @@ impl Dict {
     }
 
     fn most_common_by_char_position(&self, freq: &CharPositionFreq) -> HashMap<&String, usize> {
-        let mut words_with_weight: HashMap<&String, usize> = HashMap::new();
+        let mut words_with_weight = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word).or_insert(0);
-            let mut chars: Vec<char> = vec![];
+            let mut used_chars: Vec<char> = Vec::with_capacity(word.chars().count());
             for (i, char) in word.chars().enumerate() {
-                if !chars.contains(&char) {
+                if !used_chars.contains(&char) {
                     if let Some(char_freq) = freq.get(&char) {
                         *count += char_freq.get(&i).unwrap_or(&0);
                     }
 
-                    chars.push(char);
+                    used_chars.push(char);
                 }
             }
         }
