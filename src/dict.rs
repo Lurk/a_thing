@@ -13,13 +13,13 @@ pub struct Dict {
 /// eng:    Pneumonoultramicroscopicsilicovolcanoconiosis
 /// de:     Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz
 /// if this is a problem for you, please fill the the issue
-type CharPositionFreq = HashMap<char, [usize; 64]>;
-type CharFreq = HashMap<char, usize>;
+type CharPositionWeights = HashMap<char, [usize; 64]>;
+type CharWeights = HashMap<char, usize>;
 
 #[derive(Debug)]
-pub enum FreqType {
-    CharFreq(CharFreq),
-    CharPositionFreq(CharPositionFreq),
+pub enum WeghtsType {
+    CharWeights(CharWeights),
+    CharPositionWeights(CharPositionWeights),
 }
 
 impl Dict {
@@ -35,8 +35,8 @@ impl Dict {
         Self { inner: v }
     }
 
-    pub fn get_char_position_freq(&self) -> FreqType {
-        let mut freq: CharPositionFreq = HashMap::new();
+    pub fn get_char_position_weights(&self) -> WeghtsType {
+        let mut freq: CharPositionWeights = HashMap::new();
         for w in self.inner.iter() {
             for (i, char) in w.chars().enumerate() {
                 if i > 63 {
@@ -47,24 +47,24 @@ impl Dict {
                 count[i] += 1;
             }
         }
-        FreqType::CharPositionFreq(freq)
+        WeghtsType::CharPositionWeights(freq)
     }
 
-    pub fn get_char_freq(&self) -> FreqType {
-        let mut freq: CharFreq = HashMap::new();
+    pub fn get_char_weights(&self) -> WeghtsType {
+        let mut freq: CharWeights = HashMap::new();
         for w in self.inner.iter() {
             for char in w.chars() {
                 let count = freq.entry(char).or_insert(0);
                 *count += 1;
             }
         }
-        FreqType::CharFreq(freq)
+        WeghtsType::CharWeights(freq)
     }
 
-    pub fn most_common(&self, freq: &FreqType, count: usize) -> Self {
+    pub fn most_common(&self, freq: &WeghtsType, count: usize) -> Self {
         let words_with_weight: HashMap<&String, usize> = match freq {
-            FreqType::CharFreq(f) => self.most_common_by_char(f),
-            FreqType::CharPositionFreq(f) => self.most_common_by_char_position(f),
+            WeghtsType::CharWeights(f) => self.most_common_by_char(f),
+            WeghtsType::CharPositionWeights(f) => self.most_common_by_char_position(f),
         };
 
         let mut v: Vec<_> = words_with_weight.iter().collect();
@@ -73,7 +73,7 @@ impl Dict {
         Self::from_vec(v[0..n].iter().map(|(word, _)| word.to_string()).collect())
     }
 
-    fn most_common_by_char(&self, freq: &CharFreq) -> HashMap<&String, usize> {
+    fn most_common_by_char(&self, freq: &CharWeights) -> HashMap<&String, usize> {
         let mut words_with_weight = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word).or_insert(0);
@@ -90,7 +90,7 @@ impl Dict {
         words_with_weight
     }
 
-    fn most_common_by_char_position(&self, freq: &CharPositionFreq) -> HashMap<&String, usize> {
+    fn most_common_by_char_position(&self, freq: &CharPositionWeights) -> HashMap<&String, usize> {
         let mut words_with_weight = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word).or_insert(0);
