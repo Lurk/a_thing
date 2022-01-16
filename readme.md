@@ -17,3 +17,9 @@ Creates a dictionary from a file which contains a list of words separated by new
 Creates a dictionary from a Vec<String> 
 
 
+## TODO
+* docs
+* tests
+* benches
+
+
