@@ -1,2 +1,2 @@
 pub mod dict;
-pub mod dict_filters;
+pub mod filters;

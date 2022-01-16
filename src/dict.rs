@@ -1,4 +1,4 @@
-use crate::dict_filters::DictFilters;
+use crate::filters::Filters;
 
 use std::collections::HashMap;
 use std::fs::read_to_string;
@@ -77,15 +77,14 @@ impl Dict {
         let mut words_with_weight = HashMap::new();
         for word in &self.inner {
             let count = words_with_weight.entry(word).or_insert(0);
-            let mut chars: Vec<char> = Vec::with_capacity(word.chars().count());
+            let mut used_chars: Vec<char> = Vec::with_capacity(word.chars().count());
             for char in word.chars() {
-                if !chars.contains(&char) {
+                if !used_chars.contains(&char) {
                     if let Some(char_freq) = freq.get(&char) {
                         *count += char_freq;
                     }
+                    used_chars.push(char);
                 }
-
-                chars.push(char);
             }
         }
         words_with_weight
@@ -101,7 +100,6 @@ impl Dict {
                     if let Some(char_freq) = freq.get(&char) {
                         *count += char_freq[i];
                     }
-
                     used_chars.push(char);
                 }
             }
@@ -125,38 +123,38 @@ impl Dict {
         self.inner
     }
 
-    pub fn filter_by_length<'a>(self, len: usize) -> DictFilters<'a> {
-        DictFilters::new(Box::new(self.inner.into_iter())).filter_by_length(len)
+    pub fn filter_by_length<'a>(self, len: usize) -> Filters<'a> {
+        Filters::new(Box::new(self.inner.into_iter())).filter_by_length(len)
     }
 
-    pub fn starts_with(self, s: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).starts_with(s)
+    pub fn starts_with(self, s: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).starts_with(s)
     }
 
-    pub fn ends_with(self, s: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).ends_with(s)
+    pub fn ends_with(self, s: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).ends_with(s)
     }
 
-    pub fn contains_str(self, s: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).contains_str(s)
+    pub fn contains_str(self, s: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).contains_str(s)
     }
 
-    pub fn not_contains_str(self, s: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).not_contains_str(s)
+    pub fn not_contains_str(self, s: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).not_contains_str(s)
     }
 
-    pub fn contains_chars(self, chars: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).contains_chars(chars)
+    pub fn contains_chars(self, chars: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).contains_chars(chars)
     }
-    pub fn not_contains_chars(self, chars: &str) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).not_contains_chars(chars)
-    }
-
-    pub fn positional_contains_chars(self, chars: &[Option<char>]) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).positional_contains_chars(chars)
+    pub fn not_contains_chars(self, chars: &str) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).not_contains_chars(chars)
     }
 
-    pub fn positional_not_contains_chars(self, chars: &[Option<char>]) -> DictFilters<'_> {
-        DictFilters::new(Box::new(self.inner.into_iter())).positional_not_contains_chars(chars)
+    pub fn positional_contains_chars(self, chars: &[Option<char>]) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).positional_contains_chars(chars)
+    }
+
+    pub fn positional_not_contains_chars(self, chars: &[Option<char>]) -> Filters<'_> {
+        Filters::new(Box::new(self.inner.into_iter())).positional_not_contains_chars(chars)
     }
 }

@@ -1,10 +1,10 @@
 use crate::dict::Dict;
 
-pub struct DictFilters<'a> {
+pub struct Filters<'a> {
     inner: Box<dyn Iterator<Item = String> + 'a>,
 }
 
-impl<'a> DictFilters<'a> {
+impl<'a> Filters<'a> {
     pub fn new(iter: Box<dyn Iterator<Item = String> + 'a>) -> Self {
         Self { inner: iter }
     }
@@ -103,11 +103,11 @@ impl<'a> DictFilters<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::DictFilters;
+    use super::Filters;
 
     #[test]
     fn filter_by_length() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -123,7 +123,7 @@ mod tests {
     }
     #[test]
     fn starts_with() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "bfoo".to_string(),
                 "foobar".to_string(),
@@ -141,7 +141,7 @@ mod tests {
     }
     #[test]
     fn ends_with() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -159,7 +159,7 @@ mod tests {
     }
     #[test]
     fn contains_str() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -176,7 +176,7 @@ mod tests {
     }
     #[test]
     fn not_contains_str() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -192,7 +192,7 @@ mod tests {
     }
     #[test]
     fn contains_chars() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -209,7 +209,7 @@ mod tests {
     }
     #[test]
     fn not_contains_chars() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -225,7 +225,7 @@ mod tests {
     }
     #[test]
     fn positional_contains_chars() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "foobar".to_string(),
@@ -243,7 +243,7 @@ mod tests {
     }
     #[test]
     fn positional_not_contains_chars() -> () {
-        let res = DictFilters::new(Box::new(
+        let res = Filters::new(Box::new(
             [
                 "foo".to_string(),
                 "baz".to_string(),
