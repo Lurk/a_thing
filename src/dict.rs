@@ -9,7 +9,11 @@ pub struct Dict {
     inner: Vec<String>,
 }
 
-type CharPositionFreq = HashMap<char, HashMap<usize, usize>>;
+/// Here we are assuming that no word is longer than 64 chars
+/// eng:    Pneumonoultramicroscopicsilicovolcanoconiosis
+/// de:     Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz
+/// if this is a problem for you, please fill the the issue
+type CharPositionFreq = HashMap<char, [usize; 64]>;
 type CharFreq = HashMap<char, usize>;
 
 #[derive(Debug)]
@@ -35,9 +39,12 @@ impl Dict {
         let mut freq: CharPositionFreq = HashMap::new();
         for w in self.inner.iter() {
             for (i, char) in w.chars().enumerate() {
-                let count = freq.entry(char).or_insert_with(HashMap::new);
-                let positional_count = count.entry(i).or_insert(0);
-                *positional_count += 1;
+                if i > 63 {
+                    // Check CharPositionFreq documentation
+                    unreachable!()
+                }
+                let count = freq.entry(char).or_insert([0; 64]);
+                count[i] += 1;
             }
         }
         FreqType::CharPositionFreq(freq)
@@ -92,7 +99,7 @@ impl Dict {
             for (i, char) in word.chars().enumerate() {
                 if !used_chars.contains(&char) {
                     if let Some(char_freq) = freq.get(&char) {
-                        *count += char_freq.get(&i).unwrap_or(&0);
+                        *count += char_freq[i];
                     }
 
                     used_chars.push(char);
