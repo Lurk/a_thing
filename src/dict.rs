@@ -55,33 +55,51 @@ impl Dict {
     }
 
     pub fn most_common(&self, freq: &FreqType, count: usize) -> Self {
-        let mut words_with_weight: HashMap<String, usize> = HashMap::new();
+        let words_with_weight: HashMap<&String, usize> = match freq {
+            FreqType::CharFreq(f) => self.most_common_by_char(f),
+            FreqType::CharPositionFreq(f) => self.most_common_by_char_position(f),
+        };
+
+        let mut v: Vec<_> = words_with_weight.iter().collect();
+        v.sort_by(|a, b| b.1.cmp(a.1));
+        let n = if v.len() >= count { count } else { v.len() };
+        Self::from_vec(v[0..n].iter().map(|(word, _)| word.to_string()).collect())
+    }
+
+    fn most_common_by_char(&self, freq: &CharFreq) -> HashMap<&String, usize> {
+        let mut words_with_weight: HashMap<&String, usize> = HashMap::new();
         for word in &self.inner {
-            let count = words_with_weight.entry(word.to_string()).or_insert(0);
+            let count = words_with_weight.entry(word).or_insert(0);
+            let mut chars: Vec<char> = vec![];
+            for char in word.chars() {
+                if !chars.contains(&char) {
+                    if let Some(char_freq) = freq.get(&char) {
+                        *count += char_freq;
+                    }
+                }
+
+                chars.push(char);
+            }
+        }
+        words_with_weight
+    }
+
+    fn most_common_by_char_position(&self, freq: &CharPositionFreq) -> HashMap<&String, usize> {
+        let mut words_with_weight: HashMap<&String, usize> = HashMap::new();
+        for word in &self.inner {
+            let count = words_with_weight.entry(word).or_insert(0);
             let mut chars: Vec<char> = vec![];
             for (i, char) in word.chars().enumerate() {
                 if !chars.contains(&char) {
-                    match freq {
-                        FreqType::CharFreq(f) => {
-                            if let Some(char_freq) = f.get(&char) {
-                                *count += char_freq;
-                            }
-                        }
-                        FreqType::CharPositionFreq(f) => {
-                            if let Some(char_freq) = f.get(&char) {
-                                *count += char_freq.get(&i).unwrap_or(&0);
-                            }
-                        }
+                    if let Some(char_freq) = freq.get(&char) {
+                        *count += char_freq.get(&i).unwrap_or(&0);
                     }
 
                     chars.push(char);
                 }
             }
         }
-        let mut v: Vec<_> = words_with_weight.iter().clone().collect();
-        v.sort_by(|a, b| b.1.cmp(a.1));
-        let n = if v.len() >= count { count } else { v.len() };
-        Self::from_vec(v[0..n].iter().map(|(word, _)| word.to_string()).collect())
+        words_with_weight
     }
 
     pub fn at(&self, index: usize) -> &String {
