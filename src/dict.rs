@@ -10,11 +10,12 @@ pub struct Dict {
 }
 
 /// Here we are assuming that no word is longer than 64 chars
-/// eng:    Pneumonoultramicroscopicsilicovolcanoconiosis
-/// de:     Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz
+/// -   eng:    Pneumonoultramicroscopicsilicovolcanoconiosis
+/// -   de:     Rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz
+///
 /// if this is a problem for you, please fill the issue
-type CharPositionWeights = HashMap<char, [usize; 64]>;
-type CharWeights = HashMap<char, usize>;
+pub type CharPositionWeights = HashMap<char, [usize; 64]>;
+pub type CharWeights = HashMap<char, usize>;
 
 #[derive(Debug)]
 pub enum WeghtsType {
