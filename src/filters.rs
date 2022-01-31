@@ -1,11 +1,11 @@
-use crate::dict::Dict;
-
-pub struct Filters<'a> {
-    inner: Box<dyn Iterator<Item = String> + 'a>,
+pub struct Filters<'filter_lifetime> {
+    inner: Box<dyn Iterator<Item = &'filter_lifetime String> + 'filter_lifetime>,
 }
 
-impl<'a> Filters<'a> {
-    pub fn new(iter: Box<dyn Iterator<Item = String> + 'a>) -> Self {
+impl<'filter_lifetime> Filters<'filter_lifetime> {
+    pub fn new(
+        iter: Box<dyn Iterator<Item = &'filter_lifetime String> + 'filter_lifetime>,
+    ) -> Self {
         Self { inner: iter }
     }
 
@@ -14,35 +14,35 @@ impl<'a> Filters<'a> {
         self
     }
 
-    pub fn starts_with(mut self, s: &'a str) -> Self {
+    pub fn starts_with(mut self, s: &'filter_lifetime str) -> Self {
         if !s.is_empty() {
             self.inner = Box::new(self.inner.filter(move |word| word.starts_with(s)));
         }
         self
     }
 
-    pub fn ends_with(mut self, s: &'a str) -> Self {
+    pub fn ends_with(mut self, s: &'filter_lifetime str) -> Self {
         if !s.is_empty() {
             self.inner = Box::new(self.inner.filter(move |word| word.ends_with(s)));
         }
         self
     }
 
-    pub fn contains_str(mut self, s: &'a str) -> Self {
+    pub fn contains_str(mut self, s: &'filter_lifetime str) -> Self {
         if !s.is_empty() {
             self.inner = Box::new(self.inner.filter(move |word| word.contains(s)));
         }
         self
     }
 
-    pub fn not_contains_str(mut self, s: &'a str) -> Self {
+    pub fn not_contains_str(mut self, s: &'filter_lifetime str) -> Self {
         if !s.is_empty() {
             self.inner = Box::new(self.inner.filter(move |word| !word.contains(s)));
         }
         self
     }
 
-    pub fn contains_chars(mut self, chars: &'a str) -> Self {
+    pub fn contains_chars(mut self, chars: &'filter_lifetime str) -> Self {
         if !chars.is_empty() {
             self.inner = Box::new(
                 self.inner
@@ -52,7 +52,7 @@ impl<'a> Filters<'a> {
         self
     }
 
-    pub fn not_contains_chars(mut self, chars: &'a str) -> Self {
+    pub fn not_contains_chars(mut self, chars: &'filter_lifetime str) -> Self {
         if !chars.is_empty() {
             self.inner = Box::new(
                 self.inner
@@ -62,7 +62,7 @@ impl<'a> Filters<'a> {
         self
     }
 
-    pub fn positional_contains_chars(mut self, chars: &'a [Option<char>]) -> Self {
+    pub fn positional_contains_chars(mut self, chars: &'filter_lifetime [Option<char>]) -> Self {
         self.inner = Box::new(self.inner.filter(|word| {
             for (i, char) in chars.iter().enumerate() {
                 if let Some(lhs) = char {
@@ -80,7 +80,10 @@ impl<'a> Filters<'a> {
         self
     }
 
-    pub fn positional_not_contains_chars(mut self, chars: &'a [Option<char>]) -> Self {
+    pub fn positional_not_contains_chars(
+        mut self,
+        chars: &'filter_lifetime [Option<char>],
+    ) -> Self {
         self.inner = Box::new(self.inner.filter(|word| {
             for (i, char) in chars.iter().enumerate() {
                 if let Some(lhs) = char {
@@ -96,9 +99,73 @@ impl<'a> Filters<'a> {
         self
     }
 
-    pub fn apply(self) -> Dict {
-        Dict::from_vec(self.inner.collect())
+    pub fn take(mut self, n: usize) -> Self {
+        self.inner = Box::new(self.inner.take(n));
+        self
     }
+
+    pub fn apply(self) -> Vec<String> {
+        self.inner.map(|s| s.to_string()).collect()
+    }
+}
+
+pub fn filter_by_length(dict: &[String], len: usize) -> Filters<'_> {
+    Filters::new(Box::new(dict.iter())).filter_by_length(len)
+}
+
+pub fn starts_with<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    s: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).starts_with(s)
+}
+
+pub fn ends_with<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    s: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).ends_with(s)
+}
+
+pub fn contains_str<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    s: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).contains_str(s)
+}
+
+pub fn not_contains_str<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    s: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).not_contains_str(s)
+}
+
+pub fn contains_chars<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    chars: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).contains_chars(chars)
+}
+pub fn not_contains_chars<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    chars: &'filter_lifetime str,
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).not_contains_chars(chars)
+}
+
+pub fn positional_contains_chars<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    chars: &'filter_lifetime [Option<char>],
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).positional_contains_chars(chars)
+}
+
+pub fn positional_not_contains_chars<'filter_lifetime>(
+    dict: &'filter_lifetime [String],
+    chars: &'filter_lifetime [Option<char>],
+) -> Filters<'filter_lifetime> {
+    Filters::new(Box::new(dict.iter())).positional_not_contains_chars(chars)
 }
 
 #[cfg(test)]
@@ -109,9 +176,9 @@ mod tests {
     fn filter_by_length() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -119,16 +186,16 @@ mod tests {
         .apply();
 
         assert!(res.len() == 1);
-        assert!(res.at(0) == "foobar")
+        assert!(res[0] == "foobar")
     }
     #[test]
     fn starts_with() -> () {
         let res = Filters::new(Box::new(
             [
-                "bfoo".to_string(),
-                "foobar".to_string(),
-                "bfoobarbaz".to_string(),
-                "foobarbaz".to_string(),
+                &"bfoo".to_string(),
+                &"foobar".to_string(),
+                &"bfoobarbaz".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -136,17 +203,17 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "foobar");
-        assert!(res.at(1) == "foobarbaz");
+        assert!(res[0] == "foobar");
+        assert!(res[1] == "foobarbaz");
     }
     #[test]
     fn ends_with() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
-                "foobarbazbar".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
+                &"foobarbazbar".to_string(),
             ]
             .into_iter(),
         ))
@@ -154,16 +221,16 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "foobar");
-        assert!(res.at(1) == "foobarbazbar");
+        assert!(res[0] == "foobar");
+        assert!(res[1] == "foobarbazbar");
     }
     #[test]
     fn contains_str() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -171,32 +238,32 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "foobar");
-        assert!(res.at(1) == "foobarbaz");
+        assert!(res[0] == "foobar");
+        assert!(res[1] == "foobarbaz");
     }
     #[test]
     fn not_contains_str() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
         .not_contains_str("bar")
         .apply();
 
-        assert!(res.at(0) == "foo");
+        assert!(res[0] == "foo");
         assert!(res.len() == 1);
     }
     #[test]
     fn contains_chars() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -204,16 +271,16 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "foobar");
-        assert!(res.at(1) == "foobarbaz");
+        assert!(res[0] == "foobar");
+        assert!(res[1] == "foobarbaz");
     }
     #[test]
     fn not_contains_chars() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -221,16 +288,16 @@ mod tests {
         .apply();
 
         assert!(res.len() == 1);
-        assert!(res.at(0) == "foo");
+        assert!(res[0] == "foo");
     }
     #[test]
     fn positional_contains_chars() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
-                "fobarbaz".to_string(),
+                &"foo".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
+                &"fobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -238,19 +305,19 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "foobar");
-        assert!(res.at(1) == "foobarbaz");
+        assert!(res[0] == "foobar");
+        assert!(res[1] == "foobarbaz");
     }
     #[test]
     fn positional_not_contains_chars() -> () {
         let res = Filters::new(Box::new(
             [
-                "foo".to_string(),
-                "baz".to_string(),
-                "foobar".to_string(),
-                "foobarbaz".to_string(),
-                "fozbarbaz".to_string(),
-                "fobarbaz".to_string(),
+                &"foo".to_string(),
+                &"baz".to_string(),
+                &"foobar".to_string(),
+                &"foobarbaz".to_string(),
+                &"fozbarbaz".to_string(),
+                &"fobarbaz".to_string(),
             ]
             .into_iter(),
         ))
@@ -258,7 +325,7 @@ mod tests {
         .apply();
 
         assert!(res.len() == 2);
-        assert!(res.at(0) == "baz");
-        assert!(res.at(1) == "fobarbaz");
+        assert!(res[0] == "baz");
+        assert!(res[1] == "fobarbaz");
     }
 }
