@@ -170,162 +170,96 @@ pub fn positional_not_contains_chars<'filter_lifetime>(
 
 #[cfg(test)]
 mod tests {
-    use super::Filters;
+
+    use crate::filters::{
+        contains_chars, contains_str, ends_with, filter_by_length, not_contains_chars,
+        not_contains_str, positional_contains_chars, positional_not_contains_chars, starts_with,
+    };
+
+    fn test_dict() -> [String; 5] {
+        [
+            "foo".to_string(),
+            "bfoo".to_string(),
+            "foobar".to_string(),
+            "foobarbaz".to_string(),
+            "bfoobarbaz".to_string(),
+        ]
+    }
 
     #[test]
-    fn filter_by_length() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .filter_by_length(6)
-        .apply();
+    fn by_length() -> () {
+        let res = filter_by_length(&test_dict(), 6).apply();
 
         assert!(res.len() == 1);
         assert!(res[0] == "foobar")
     }
     #[test]
-    fn starts_with() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"bfoo".to_string(),
-                &"foobar".to_string(),
-                &"bfoobarbaz".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .starts_with("foo")
-        .apply();
+    fn starts_with_test() -> () {
+        let res = starts_with(&test_dict(), "foo").apply();
+
+        assert!(res.len() == 3);
+        assert!(res[0] == "foo");
+        assert!(res[1] == "foobar");
+        assert!(res[2] == "foobarbaz");
+    }
+    #[test]
+    fn ends_with_test() -> () {
+        let res = ends_with(&test_dict(), "baz").apply();
 
         assert!(res.len() == 2);
+        assert!(res[0] == "foobarbaz");
+        assert!(res[1] == "bfoobarbaz");
+    }
+    #[test]
+    fn contains_str_test() -> () {
+        let res = contains_str(&test_dict(), "bar").apply();
+
+        assert!(res.len() == 3);
         assert!(res[0] == "foobar");
         assert!(res[1] == "foobarbaz");
+        assert!(res[2] == "bfoobarbaz");
     }
     #[test]
-    fn ends_with() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-                &"foobarbazbar".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .ends_with("bar")
-        .apply();
-
-        assert!(res.len() == 2);
-        assert!(res[0] == "foobar");
-        assert!(res[1] == "foobarbazbar");
-    }
-    #[test]
-    fn contains_str() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .contains_str("bar")
-        .apply();
-
-        assert!(res.len() == 2);
-        assert!(res[0] == "foobar");
-        assert!(res[1] == "foobarbaz");
-    }
-    #[test]
-    fn not_contains_str() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .not_contains_str("bar")
-        .apply();
+    fn not_contains_str_test() -> () {
+        let res = not_contains_str(&test_dict(), "bar").apply();
 
         assert!(res[0] == "foo");
-        assert!(res.len() == 1);
+        assert!(res[1] == "bfoo");
+        assert!(res.len() == 2);
     }
     #[test]
-    fn contains_chars() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .contains_chars("br")
-        .apply();
+    fn contains_chars_test() -> () {
+        let res = contains_chars(&test_dict(), "br").apply();
 
-        assert!(res.len() == 2);
+        assert!(res.len() == 3);
         assert!(res[0] == "foobar");
         assert!(res[1] == "foobarbaz");
+        assert!(res[2] == "bfoobarbaz");
     }
     #[test]
-    fn not_contains_chars() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .not_contains_chars("bz")
-        .apply();
+    fn not_contains_chars_test() -> () {
+        let res = not_contains_chars(&test_dict(), "bz").apply();
 
         assert!(res.len() == 1);
         assert!(res[0] == "foo");
     }
     #[test]
-    fn positional_contains_chars() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-                &"fobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .positional_contains_chars(&[None, None, Some('o'), None, Some('a')])
-        .apply();
+    fn positional_contains_chars_test() -> () {
+        let res =
+            positional_contains_chars(&test_dict(), &[None, None, Some('o'), None, Some('a')])
+                .apply();
 
         assert!(res.len() == 2);
         assert!(res[0] == "foobar");
         assert!(res[1] == "foobarbaz");
     }
     #[test]
-    fn positional_not_contains_chars() -> () {
-        let res = Filters::new(Box::new(
-            [
-                &"foo".to_string(),
-                &"baz".to_string(),
-                &"foobar".to_string(),
-                &"foobarbaz".to_string(),
-                &"fozbarbaz".to_string(),
-                &"fobarbaz".to_string(),
-            ]
-            .into_iter(),
-        ))
-        .positional_not_contains_chars(&[None, None, Some('o'), None, Some('a')])
-        .apply();
+    fn positional_not_contains_chars_test() -> () {
+        let res = positional_not_contains_chars(&test_dict(), &[None, Some('f')]).apply();
 
-        assert!(res.len() == 2);
-        assert!(res[0] == "baz");
-        assert!(res[1] == "fobarbaz");
+        assert!(res.len() == 3);
+        assert!(res[0] == "foo");
+        assert!(res[1] == "foobar");
+        assert!(res[2] == "foobarbaz");
     }
 }
