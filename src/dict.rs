@@ -18,6 +18,29 @@ pub enum WeightsType {
     CharPositionWeights(CharPositionWeights),
 }
 
+/// Produces HashMap with count of every char from the dictionary
+///
+/// Basic usage:
+/// ```
+/// use a_thing::dict::get_char_weights;
+/// let dict: [String;1] = [
+///     "foo".to_string(),
+/// ];
+/// let weights = get_char_weights(&dict);
+/// assert_eq!(weights.get(&'f'), Some(&1));
+/// assert_eq!(weights.get(&'o'), Some(&2));
+/// ```
+pub fn get_char_weights(dict: &[String]) -> WeightsType {
+    let mut freq: CharWeights = HashMap::new();
+    for w in dict.iter() {
+        for char in w.chars() {
+            let count = freq.entry(char).or_insert(0);
+            *count += 1;
+        }
+    }
+    WeightsType::CharWeights(freq)
+}
+
 pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
     let mut freq: CharPositionWeights = HashMap::new();
     for w in dict.iter() {
@@ -31,17 +54,6 @@ pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
         }
     }
     WeightsType::CharPositionWeights(freq)
-}
-
-pub fn get_char_weights(dict: &[String]) -> WeightsType {
-    let mut freq: CharWeights = HashMap::new();
-    for w in dict.iter() {
-        for char in w.chars() {
-            let count = freq.entry(char).or_insert(0);
-            *count += 1;
-        }
-    }
-    WeightsType::CharWeights(freq)
 }
 
 pub fn most_common(dict: &[String], freq: &WeightsType, count: usize) -> Vec<String> {
