@@ -190,58 +190,58 @@ mod tests {
     fn by_length() -> () {
         let res = filter_by_length(&test_dict(), 6).apply();
 
-        assert!(res.len() == 1);
-        assert!(res[0] == "foobar")
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0], "foobar")
     }
     #[test]
     fn starts_with_test() -> () {
         let res = starts_with(&test_dict(), "foo").apply();
 
-        assert!(res.len() == 3);
-        assert!(res[0] == "foo");
-        assert!(res[1] == "foobar");
-        assert!(res[2] == "foobarbaz");
+        assert_eq!(res.len(), 3);
+        assert_eq!(res[0], "foo");
+        assert_eq!(res[1], "foobar");
+        assert_eq!(res[2], "foobarbaz");
     }
     #[test]
     fn ends_with_test() -> () {
         let res = ends_with(&test_dict(), "baz").apply();
 
-        assert!(res.len() == 2);
-        assert!(res[0] == "foobarbaz");
-        assert!(res[1] == "bfoobarbaz");
+        assert_eq!(res.len(), 2);
+        assert_eq!(res[0], "foobarbaz");
+        assert_eq!(res[1], "bfoobarbaz");
     }
     #[test]
     fn contains_str_test() -> () {
         let res = contains_str(&test_dict(), "bar").apply();
 
-        assert!(res.len() == 3);
-        assert!(res[0] == "foobar");
-        assert!(res[1] == "foobarbaz");
-        assert!(res[2] == "bfoobarbaz");
+        assert_eq!(res.len(), 3);
+        assert_eq!(res[0], "foobar");
+        assert_eq!(res[1], "foobarbaz");
+        assert_eq!(res[2], "bfoobarbaz");
     }
     #[test]
     fn not_contains_str_test() -> () {
         let res = not_contains_str(&test_dict(), "bar").apply();
 
-        assert!(res[0] == "foo");
-        assert!(res[1] == "bfoo");
-        assert!(res.len() == 2);
+        assert_eq!(res[0], "foo");
+        assert_eq!(res[1], "bfoo");
+        assert_eq!(res.len(), 2);
     }
     #[test]
     fn contains_chars_test() -> () {
         let res = contains_chars(&test_dict(), "br").apply();
 
-        assert!(res.len() == 3);
-        assert!(res[0] == "foobar");
-        assert!(res[1] == "foobarbaz");
-        assert!(res[2] == "bfoobarbaz");
+        assert_eq!(res.len(), 3);
+        assert_eq!(res[0], "foobar");
+        assert_eq!(res[1], "foobarbaz");
+        assert_eq!(res[2], "bfoobarbaz");
     }
     #[test]
     fn not_contains_chars_test() -> () {
         let res = not_contains_chars(&test_dict(), "bz").apply();
 
-        assert!(res.len() == 1);
-        assert!(res[0] == "foo");
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0], "foo");
     }
     #[test]
     fn positional_contains_chars_test() -> () {
@@ -249,17 +249,17 @@ mod tests {
             positional_contains_chars(&test_dict(), &[None, None, Some('o'), None, Some('a')])
                 .apply();
 
-        assert!(res.len() == 2);
-        assert!(res[0] == "foobar");
-        assert!(res[1] == "foobarbaz");
+        assert_eq!(res.len(), 2);
+        assert_eq!(res[0], "foobar");
+        assert_eq!(res[1], "foobarbaz");
     }
     #[test]
     fn positional_not_contains_chars_test() -> () {
         let res = positional_not_contains_chars(&test_dict(), &[None, Some('f')]).apply();
 
-        assert!(res.len() == 3);
-        assert!(res[0] == "foo");
-        assert!(res[1] == "foobar");
-        assert!(res[2] == "foobarbaz");
+        assert_eq!(res.len(), 3);
+        assert_eq!(res[0], "foo");
+        assert_eq!(res[1], "foobar");
+        assert_eq!(res[2], "foobarbaz");
     }
 }
