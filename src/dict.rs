@@ -22,13 +22,14 @@ pub enum WeightsType {
 ///
 /// Basic usage:
 /// ```
-/// use a_thing::dict::get_char_weights;
+/// use a_thing::dict::{get_char_weights, WeightsType};
 /// let dict: [String;1] = [
 ///     "foo".to_string(),
 /// ];
-/// let weights = get_char_weights(&dict);
-/// assert_eq!(weights.get(&'f'), Some(&1));
-/// assert_eq!(weights.get(&'o'), Some(&2));
+/// if let WeightsType::CharWeights(weights) = get_char_weights(&dict){
+///     assert_eq!(weights.get(&'f'), Some(&1));
+///     assert_eq!(weights.get(&'o'), Some(&2));
+/// }
 /// ```
 pub fn get_char_weights(dict: &[String]) -> WeightsType {
     let mut freq: CharWeights = HashMap::new();
