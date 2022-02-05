@@ -18,7 +18,7 @@ pub enum WeightsType {
     CharPositionWeights(CharPositionWeights),
 }
 
-/// Produces HashMap with count of every char from the dictionary
+/// Counts of every char from the dictionary
 ///
 /// Basic usage:
 /// ```
@@ -42,6 +42,19 @@ pub fn get_char_weights(dict: &[String]) -> WeightsType {
     WeightsType::CharWeights(freq)
 }
 
+/// Counts every char in dictionary with respect to char position
+/// Basic usage:
+/// ```
+/// use a_thing::dict::{get_char_position_weights, WeightsType};
+/// let dict: [String;1] = [
+///     "foo".to_string(),
+/// ];
+/// if let WeightsType::CharPositionWeights(weights) = get_char_position_weights(&dict){
+///     assert_eq!(weights.get(&'f').unwrap()[0], 1);
+///     assert_eq!(weights.get(&'o').unwrap()[1], 1);
+///     assert_eq!(weights.get(&'o').unwrap()[2], 1);
+/// }
+/// ```
 pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
     let mut freq: CharPositionWeights = HashMap::new();
     for w in dict.iter() {
@@ -112,26 +125,33 @@ fn most_common_by_char_position<'a>(
 #[cfg(test)]
 mod tests {
 
-    use crate::dict::{get_char_weights, WeightsType};
+    use crate::dict::{get_char_position_weights, get_char_weights, WeightsType};
 
-    fn test_dict() -> [String; 5] {
-        [
-            "foo".to_string(),
-            "bfoo".to_string(),
-            "foobar".to_string(),
-            "foobarbaz".to_string(),
-            "bfoobarbaz".to_string(),
-        ]
+    fn test_dict() -> [String; 3] {
+        ["foo".to_string(), "bar".to_string(), "baz".to_string()]
     }
     #[test]
     fn get_char_weights_test() {
         if let WeightsType::CharWeights(weights) = get_char_weights(&test_dict()) {
-            assert_eq!(weights.get(&'a'), Some(&5));
-            assert_eq!(weights.get(&'b'), Some(&7));
-            assert_eq!(weights.get(&'f'), Some(&5));
-            assert_eq!(weights.get(&'r'), Some(&3));
-            assert_eq!(weights.get(&'o'), Some(&10));
-            assert_eq!(weights.get(&'z'), Some(&2));
+            assert_eq!(weights.get(&'a'), Some(&2));
+            assert_eq!(weights.get(&'b'), Some(&2));
+            assert_eq!(weights.get(&'f'), Some(&1));
+            assert_eq!(weights.get(&'r'), Some(&1));
+            assert_eq!(weights.get(&'o'), Some(&2));
+            assert_eq!(weights.get(&'z'), Some(&1));
+        }
+    }
+
+    #[test]
+    fn get_char_position_weights_test() {
+        if let WeightsType::CharPositionWeights(weights) = get_char_position_weights(&test_dict()) {
+            assert_eq!(weights.get(&'f').unwrap()[0], 1);
+            assert_eq!(weights.get(&'b').unwrap()[0], 2);
+            assert_eq!(weights.get(&'o').unwrap()[1], 1);
+            assert_eq!(weights.get(&'o').unwrap()[2], 1);
+            assert_eq!(weights.get(&'a').unwrap()[1], 2);
+            assert_eq!(weights.get(&'r').unwrap()[2], 1);
+            assert_eq!(weights.get(&'z').unwrap()[2], 1);
         }
     }
 }
