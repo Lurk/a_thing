@@ -13,12 +13,12 @@ pub type CharWeights = HashMap<char, usize>;
 pub type CharPositionWeights = HashMap<char, [usize; 64]>;
 
 #[derive(Debug)]
-pub enum WeghtsType {
+pub enum WeightsType {
     CharWeights(CharWeights),
     CharPositionWeights(CharPositionWeights),
 }
 
-pub fn get_char_position_weights(dict: &[String]) -> WeghtsType {
+pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
     let mut freq: CharPositionWeights = HashMap::new();
     for w in dict.iter() {
         for (i, char) in w.chars().enumerate() {
@@ -30,10 +30,10 @@ pub fn get_char_position_weights(dict: &[String]) -> WeghtsType {
             count[i] += 1;
         }
     }
-    WeghtsType::CharPositionWeights(freq)
+    WeightsType::CharPositionWeights(freq)
 }
 
-pub fn get_char_weights(dict: &[String]) -> WeghtsType {
+pub fn get_char_weights(dict: &[String]) -> WeightsType {
     let mut freq: CharWeights = HashMap::new();
     for w in dict.iter() {
         for char in w.chars() {
@@ -41,13 +41,13 @@ pub fn get_char_weights(dict: &[String]) -> WeghtsType {
             *count += 1;
         }
     }
-    WeghtsType::CharWeights(freq)
+    WeightsType::CharWeights(freq)
 }
 
-pub fn most_common(dict: &[String], freq: &WeghtsType, count: usize) -> Vec<String> {
+pub fn most_common(dict: &[String], freq: &WeightsType, count: usize) -> Vec<String> {
     let words_with_weight: HashMap<&String, usize> = match freq {
-        WeghtsType::CharWeights(f) => most_common_by_char(dict, f),
-        WeghtsType::CharPositionWeights(f) => most_common_by_char_position(dict, f),
+        WeightsType::CharWeights(f) => most_common_by_char(dict, f),
+        WeightsType::CharPositionWeights(f) => most_common_by_char_position(dict, f),
     };
 
     let mut v: Vec<_> = words_with_weight.iter().collect();
@@ -94,4 +94,31 @@ fn most_common_by_char_position<'a>(
         }
     }
     words_with_weight
+}
+
+#[cfg(test)]
+mod tests {
+
+    use crate::dict::{get_char_weights, WeightsType};
+
+    fn test_dict() -> [String; 5] {
+        [
+            "foo".to_string(),
+            "bfoo".to_string(),
+            "foobar".to_string(),
+            "foobarbaz".to_string(),
+            "bfoobarbaz".to_string(),
+        ]
+    }
+    #[test]
+    fn get_char_weights_test() {
+        if let WeightsType::CharWeights(weights) = get_char_weights(&test_dict()) {
+            assert_eq!(weights.get(&'a'), Some(&5));
+            assert_eq!(weights.get(&'b'), Some(&7));
+            assert_eq!(weights.get(&'f'), Some(&5));
+            assert_eq!(weights.get(&'r'), Some(&3));
+            assert_eq!(weights.get(&'o'), Some(&10));
+            assert_eq!(weights.get(&'z'), Some(&2));
+        }
+    }
 }
