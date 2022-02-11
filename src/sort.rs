@@ -22,13 +22,19 @@ pub enum WeightsType {
 ///
 /// Basic usage:
 /// ```
-/// use a_thing::dict::{get_char_weights, WeightsType};
-/// let dict: [String;1] = [
-///     "foo".to_string(),
+/// use a_thing::sort::{get_char_weights, WeightsType};
+/// let dict: [String;3] = [
+///     "for".to_string(),
+///     "bar".to_string(),
+///     "baz".to_string()
 /// ];
 /// if let WeightsType::CharWeights(weights) = get_char_weights(&dict){
 ///     assert_eq!(weights.get(&'f'), Some(&1));
-///     assert_eq!(weights.get(&'o'), Some(&2));
+///     assert_eq!(weights.get(&'o'), Some(&1));
+///     assert_eq!(weights.get(&'b'), Some(&2));
+///     assert_eq!(weights.get(&'a'), Some(&2));
+///     assert_eq!(weights.get(&'r'), Some(&2));
+///     assert_eq!(weights.get(&'z'), Some(&1));
 /// }
 /// ```
 pub fn get_char_weights(dict: &[String]) -> WeightsType {
@@ -45,7 +51,7 @@ pub fn get_char_weights(dict: &[String]) -> WeightsType {
 /// Counts every char in dictionary with respect to char position
 /// Basic usage:
 /// ```
-/// use a_thing::dict::{get_char_position_weights, WeightsType};
+/// use a_thing::sort::{get_char_position_weights, WeightsType};
 /// let dict: [String;1] = [
 ///     "foo".to_string(),
 /// ];
@@ -60,7 +66,7 @@ pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
     for w in dict.iter() {
         for (i, char) in w.chars().enumerate() {
             if i > 63 {
-                // Check CharPositionFreq documentation
+                // Check CharPositionWeights documentation
                 unreachable!()
             }
             let count = freq.entry(char).or_insert([0; 64]);
@@ -70,6 +76,21 @@ pub fn get_char_position_weights(dict: &[String]) -> WeightsType {
     WeightsType::CharPositionWeights(freq)
 }
 
+/// Returns dictionary sorted by weights
+/// Basic usage
+/// ```
+/// use a_thing::sort::{most_common, get_char_weights};
+/// let dict: [String;3] = [
+///     "for".to_string(),
+///     "bar".to_string(),
+///     "baz".to_string()
+/// ];
+///
+/// let sorted_dict = most_common(&dict, &get_char_weights(&dict), 3);
+/// assert_eq!(sorted_dict[0], dict[1]);
+/// assert_eq!(sorted_dict[1], dict[2]);
+/// assert_eq!(sorted_dict[2], dict[0]);
+/// ```
 pub fn most_common(dict: &[String], freq: &WeightsType, count: usize) -> Vec<String> {
     let words_with_weight: HashMap<&String, usize> = match freq {
         WeightsType::CharWeights(f) => most_common_by_char(dict, f),
@@ -125,7 +146,7 @@ fn most_common_by_char_position<'a>(
 #[cfg(test)]
 mod tests {
 
-    use crate::dict::{get_char_position_weights, get_char_weights, WeightsType};
+    use crate::sort::{get_char_position_weights, get_char_weights, most_common, WeightsType};
 
     fn test_dict() -> [String; 3] {
         ["foo".to_string(), "bar".to_string(), "baz".to_string()]
@@ -153,5 +174,14 @@ mod tests {
             assert_eq!(weights.get(&'r').unwrap()[2], 1);
             assert_eq!(weights.get(&'z').unwrap()[2], 1);
         }
+    }
+
+    #[test]
+    fn most_common_with_position_test() {
+        let dict = ["for".to_string(), "bar".to_string(), "baz".to_string()];
+        let sorted_dict = most_common(&dict, &get_char_position_weights(&dict), 3);
+        assert_eq!(sorted_dict[0], dict[1]);
+        assert_eq!(sorted_dict[1], dict[2]);
+        assert_eq!(sorted_dict[2], dict[0]);
     }
 }
